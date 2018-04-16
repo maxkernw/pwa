@@ -1,0 +1,1 @@
+export const dispatch = (eventName, data) => window.dispatchEvent(new CustomEvent(eventName, { detail: data }));

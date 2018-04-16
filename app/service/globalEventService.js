@@ -29,10 +29,10 @@ export default class GlobalEventService {
     }
 
     eventCallback(e) {
-            for (let item of this.subscribers) {
-                if (item != null && item.event === e.type) {
-                    item.callback(e);
-                }
+        for (let item of this.subscribers) {
+            if (item != null && item.event === e.type) {
+                item.callback(e);
+            }
         }
     }
 }

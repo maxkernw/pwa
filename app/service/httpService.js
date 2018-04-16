@@ -1,3 +1,6 @@
+import getOrAdd from './cacheService';
+import { dispatch } from './dispatchService'
+
 export default class HttpService {
 
     constructor(endpoint, apiKey) {
@@ -5,14 +8,16 @@ export default class HttpService {
         this.apiKey = apiKey;
     }
 
-    async get(path) {
-        const localData = sessionStorage.getItem(path)
-        if (!localData) {
-            const response = await fetch(`${this.endpoint}/${path}`)
-            const json = await response.json();
-            sessionStorage.setItem(path, JSON.stringify(json));
-            return json;
+    async get(path, useCache = true) {
+        if (useCache) {
+            getOrAdd(path, async () => fetch(`${this.endpoint}/${path}`), (data) => dispatch('update', data))
         }
-        return JSON.parse(localData);
+        else {
+            const resp = await fetch(`${this.endpoint}/${path}`);
+            const json = await resp.json();
+            dispatch('update', data);
+        }
     }
+
+
 }

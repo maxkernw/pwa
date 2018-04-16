@@ -1,31 +1,35 @@
-import GlobalEventService from './globalEventListener'
+import GlobalEventService from './service/globalEventService'
 import HttpService from './service/httpService'
-import awd from './header/header';
-import userDetail from './user/userdetail';
+import { userDetailComponent } from './components/userDetailComponent';
+import { dispatch } from './service/dispatchService'
 
 const main = document.querySelector('main');
-const eventService = new GlobalEventService();
 const http = new HttpService("https://api.github.com", null)
-const defaultUser = "maxkernw";
+const defaultUser = "elm";
 
-const clickEvent = null;
+let fetchUnsubscribe = null;
+let updateUnsubscribe = null;
+let onChangeUnsubscribe = null;
 
-window.addEventListener('load', async e => {
-    console.log("loadedasaa");
-    main.innerHTML = awd();
-    
+const setup = () => {
     setupEventListener();
-    let user = await getUser();
-    main.innerHTML = await userDetail(user);
-    var event = new Event("fetch");
-    document.dispatchEvent(event);
-})
-const ev = (e) => console.log("awdaw"); 
-
-const setupEventListener = () => {
-    const click = {event: 'fetch', callback: ev}
-    eventService.subscribe(click);
+    dispatch('fetch', defaultUser)
 }
 
-const getUser = () => http.get(`users/${defaultUser}`)
+const get = (query) => http.get(`users/${query.detail}`)
+const render = (data) => main.innerHTML = userDetailComponent(data.detail);
+const query = ($event) => $event.keyCode === 13 && $event.target.id === "query" ? dispatch('fetch', $event.target.value) : null;
 
+const setupEventListener = () => {
+    const eventService = new GlobalEventService();
+
+    const update = { event: 'update', callback: render };
+    const fetch = { event: 'fetch', callback: get };
+    const onChange = { event: 'keyup', callback: query };
+
+    fetchUnsubscribe = eventService.subscribe(fetch);
+    updateUnsubscribe = eventService.subscribe(update);
+    onChangeUnsubscribe = eventService.subscribe(onChange)
+}
+
+window.addEventListener('load', setup)
