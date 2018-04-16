@@ -3,14 +3,16 @@ import { dispatch } from './dispatchService'
 
 export default class HttpService {
 
-    constructor(endpoint, apiKey) {
+    constructor(endpoint, apiKey = null) {
         this.endpoint = endpoint;
         this.apiKey = apiKey;
     }
 
     async get(path, useCache = true) {
         if (useCache) {
-            getOrAdd(path, async () => fetch(`${this.endpoint}/${path}`), (data) => dispatch('update', data))
+            getOrAdd(path, 
+                () => fetch(`${this.endpoint}/${path}`), 
+                (data) => dispatch('update', data))
         }
         else {
             const resp = await fetch(`${this.endpoint}/${path}`);
@@ -18,6 +20,4 @@ export default class HttpService {
             dispatch('update', data);
         }
     }
-
-
 }
